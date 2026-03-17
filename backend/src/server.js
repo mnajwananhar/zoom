@@ -2,7 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const XLSX = require('xlsx');
 const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const db = require('./db');
+
+// Setup multer for file upload
+const upload = multer({ dest: path.join(__dirname, '../data/temp/') });
+const dataDir = path.join(__dirname, '../data/');
+
+// Ensure data directory exists
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -293,6 +304,29 @@ app.post('/api/validator/export', async (req, res) => {
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
+});
+
+// Upload database file
+app.post('/api/upload-db', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No file uploaded' });
+    }
+
+    const destPath = path.join(dataDir, 'petshop.db');
+
+    // Remove existing db if any
+    if (fs.existsSync(destPath)) {
+      fs.unlinkSync(destPath);
+    }
+
+    // Move uploaded file to data directory
+    fs.renameSync(req.file.path, destPath);
+
+    res.json({ success: true, message: 'Database uploaded successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 app.listen(PORT, () => {
