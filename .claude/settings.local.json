@@ -8,7 +8,8 @@
       "Bash(node src/migrate-data.js)",
       "Bash(node src/init-db.js)",
       "Bash(timeout 5 npm start)",
-      "Bash(npm start:*)"
+      "Bash(npm start:*)",
+      "Bash(curl:*)"
     ]
   }
 }

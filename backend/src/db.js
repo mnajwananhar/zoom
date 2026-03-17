@@ -1,8 +1,15 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 const { promisify } = require('util');
 
 const DB_PATH = path.join(__dirname, '../data/petshop.db');
+const DATA_DIR = path.join(__dirname, '../data');
+
+// Create data directory if it doesn't exist
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 class DatabaseManager {
   constructor() {

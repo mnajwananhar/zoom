@@ -7,13 +7,18 @@ const multer = require('multer');
 const db = require('./db');
 
 // Setup multer for file upload
-const upload = multer({ dest: path.join(__dirname, '../data/temp/') });
 const dataDir = path.join(__dirname, '../data/');
+const tempDir = path.join(dataDir, 'temp');
 
-// Ensure data directory exists
+// Ensure data and temp directories exist
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
+
+const upload = multer({ dest: tempDir });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
