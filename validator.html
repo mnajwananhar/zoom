@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Validator & Export | Petshop Zoom</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F6F3;--border:#E5E3DD;--text:#1A1915;--muted:#888580;
+  --green:#2D7A4F;--green-bg:#EBF5EF;--red:#B83232;--red-bg:#FAEAEA;
+  --blue:#1A5FA8;--blue-bg:#EBF2FB;--accent:#1A5FA8;
+  --purple:#534AB7;--purple-bg:#EEEDFE;--amber:#8A5C00;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:15px;font-weight:700}.logo span{color:var(--accent)}
+.badge-v{font-size:11px;font-weight:600;background:var(--purple-bg);color:var(--purple);padding:3px 10px;border-radius:20px}
+.main {
+    max-width: 98%;
+    margin: 0 auto;
+    padding: 20px 16px;
+}
+h2{font-size:18px;font-weight:700;margin-bottom:6px}
+.sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.step-hint{background:var(--blue-bg);border:1px solid #B5D4F4;border-radius:10px;padding:12px 16px;font-size:13px;color:var(--blue);margin-bottom:20px;line-height:1.7}
+.step-hint b{font-weight:700}
+.summary-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:20px}
+.sum-title{font-size:13px;font-weight:700;margin-bottom:12px}
+.sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sum-card{background:var(--bg);border-radius:9px;padding:12px 8px;text-align:center}
+.sum-num{font-size:24px;font-weight:700}.sum-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+.sn-g{color:var(--green)}.sn-r{color:var(--red)}.sn-a{color:var(--amber)}.sn-m{color:var(--muted)}
+.prog-wrap{margin-top:12px;display:none}
+.prog-label{font-size:12px;color:var(--blue);font-weight:500;margin-bottom:5px}
+.prog-bar{height:5px;background:#EEE;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s}
+.tbl-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    margin-bottom: 80px;
+    width: 100%;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    table-layout: auto;
+}
+th{text-align:left;padding:8px 10px;background:var(--bg);font-weight:600;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:7px 10px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F9F8F6}
+.s-aktif{color:var(--green);font-weight:600}.s-nonaktif{color:var(--red);font-weight:600}
+.s-lewati{color:var(--muted)}.s-belum{color:var(--amber);font-weight:600}
+.fc{font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px;display:inline-block;margin:1px}
+.fc-d{background:#FEF6E4;color:#8A5C00}.fc-h{background:#FAEAEA;color:#B83232}.fc-s{background:#FFF3E0;color:#8A4500}
+select.ssel{font-size:12px;padding:3px 7px;border-radius:6px;border:1px solid var(--border);background:#fff;font-family:inherit;cursor:pointer}
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.search-in{flex:1;min-width:180px;padding:8px 12px;border:1px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:var(--bg)}
+.search-in:focus{border-color:var(--accent);background:#fff}
+.ftab{font-size:11px;font-weight:500;padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+.ftab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.export-bar{background:#fff;border-top:1px solid var(--border);padding:12px 20px;display:flex;gap:10px;align-items:center;position:fixed;bottom:0;left:0;right:0;z-index:100}
+.exp-info{flex:1;font-size:12px;color:var(--muted);line-height:1.5}
+.exp-btn{padding:10px 22px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.exp-btn:hover{background:#245F3E}.exp-btn:disabled{background:#CCC;cursor:not-allowed}
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:#1A1915;color:#fff;padding:9px 20px;border-radius:9px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1}
+.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:12px}
+.loading.hidden{display:none}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Memuat data...</div>
+</div>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="logo">Petshop <span>Zoom</span></div>
+    <div class="badge-v">Validator</div>
+  </div>
+  <div style="font-size:12px;color:var(--muted)" id="top-info">Memuat...</div>
+</div>
+
+<div class="main">
+  <h2>Validasi & Export Produk Aktif</h2>
+  <p class="sub">Data dari SQLite database. Override status bila perlu, lalu export ke XLSX final dengan semua kolom lengkap.</p>
+
+  <div class="summary-box">
+    <div class="sum-title">Ringkasan Hasil Review</div>
+    <div class="sum-grid">
+      <div class="sum-card"><div class="sum-num sn-g" id="s-a">0</div><div class="sum-lbl">Aktif</div></div>
+      <div class="sum-card"><div class="sum-num sn-r" id="s-n">0</div><div class="sum-lbl">Tidak aktif</div></div>
+      <div class="sum-card"><div class="sum-num sn-m" id="s-l">0</div><div class="sum-lbl">Dilewati</div></div>
+      <div class="sum-card"><div class="sum-num sn-a" id="s-b">0</div><div class="sum-lbl">Belum</div></div>
+    </div>
+    <div class="prog-wrap" id="prog-wrap">
+      <div class="prog-label" id="prog-label">Menyiapkan...</div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input class="search-in" type="text" placeholder="Cari nama produk atau merek..." id="v-search" oninput="renderTable()">
+    <div style="display:flex;gap:5px;flex-wrap:wrap">
+      <div class="ftab active" onclick="setVF('semua',this)">Semua</div>
+      <div class="ftab" onclick="setVF('aktif',this)">Aktif</div>
+      <div class="ftab" onclick="setVF('nonaktif',this)">Tidak aktif</div>
+      <div class="ftab" onclick="setVF('lewati',this)">Dilewati</div>
+      <div class="ftab" onclick="setVF('belum',this)">Belum</div>
+      <div class="ftab" onclick="setVF('duplikat',this)">⚠ Duplikat</div>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Kode Item</th><th>Barcode</th><th>SKU</th><th>Nama Item</th><th>Merek</th>
+        <th>Sub Jenis / Jenis</th><th>Stok</th><th>Satuan</th><th>Rak</th>
+        <th>Harga Pokok</th><th>Harga Jual</th><th>Keterangan</th><th>Sheet</th><th>Flag</th><th>Status Review</th>
+      </tr></thead>
+      <tbody id="vtbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="export-bar">
+  <div class="exp-info" id="exp-info">Memuat data dari database...</div>
+  <div style="display:flex; gap:8px;">
+    <button class="exp-btn" id="exp-btn-aktif" onclick="exportXLSX('aktif')" style="background: var(--green);">
+      Export Aktif ↓
+    </button>
+    <button class="exp-btn" id="exp-btn-non" onclick="exportXLSX('nonaktif')" style="background: var(--red);">
+      Export Tidak Aktif ↓
+    </button>
+    <button class="exp-btn" id="exp-btn-all" onclick="exportXLSX('semua')" style="background: var(--blue);">
+      Export Semua ↓
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+// API_BASE - auto-detect based on current host (works locally & on production)
+const API_BASE = window.location.origin + '/api';
+
+// ============================================
+// STATE
+// ============================================
+let allItems = [];
+let vFilter = 'semua';
+
+// ============================================
+// API FUNCTIONS
+// ============================================
+async function fetchAllProducts() {
+  const res = await fetch(`${API_BASE}/validator/products`);
+  const data = await res.json();
+  if (data.success) {
+    allItems = data.data;
+  }
+}
+
+async function fetchStats() {
+  const res = await fetch(`${API_BASE}/validator/stats`);
+  const data = await res.json();
+  return data.success ? data.data : { total: 0, aktif: 0, nonaktif: 0, lewati: 0, belum: 0 };
+}
+
+async function updateStatus(id, status) {
+  const res = await fetch(`${API_BASE}/products/${id}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status, adminId: 'validator' })
+  });
+  const data = await res.json();
+  if (data.success) {
+    const item = allItems.find(i => i.id === id);
+    if (item) item.status = status;
+  }
+  return data.success;
+}
+
+async function exportToXLSX(mode) {
+  const res = await fetch(`${API_BASE}/validator/export`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode })
+  });
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const fileName = mode === 'aktif' ? 'produk_aktif.xlsx' :
+                   mode === 'nonaktif' ? 'produk_tidak_aktif.xlsx' :
+                   'semua_produk_review.xlsx';
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+}
+
+// ============================================
+// UI FUNCTIONS
+// ============================================
+async function init() {
+  try {
+    await fetchAllProducts();
+    updateSummary();
+    renderTable();
+    document.getElementById('loading').classList.add('hidden');
+  } catch (err) {
+    showToast('Error: ' + err.message);
+    console.error(err);
+  }
+}
+
+async function updateSummary() {
+  const stats = await fetchStats();
+  document.getElementById('s-a').textContent = stats.aktif;
+  document.getElementById('s-n').textContent = stats.nonaktif;
+  document.getElementById('s-l').textContent = stats.lewati;
+  document.getElementById('s-b').textContent = stats.belum;
+
+  const a = allItems.filter(i => i.status === 'aktif').length;
+  const n = allItems.filter(i => i.status === 'nonaktif').length;
+  document.getElementById('top-info').textContent = allItems.length + ' item dimuat';
+  document.getElementById('exp-info').textContent = a + ' Aktif, ' + n + ' Tidak Aktif';
+}
+
+function setVF(f, el) {
+  vFilter = f;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const q = (document.getElementById('v-search').value || '').toLowerCase();
+  let f = allItems;
+
+  if (vFilter === 'duplikat') {
+    f = allItems.filter(i => i.flags.includes('duplikat'));
+  } else if (vFilter !== 'semua') {
+    f = allItems.filter(i => i.status === vFilter);
+  }
+
+  if (q) {
+    f = f.filter(i =>
+      i.nama.toLowerCase().includes(q) ||
+      (i.merek || '').toLowerCase().includes(q)
+    );
+  }
+
+  const tb = document.getElementById('vtbody');
+  if (!f.length) {
+    tb.innerHTML = '<tr><td colspan="15" class="empty">Tidak ada data.</td></tr>';
+    return;
+  }
+
+  tb.innerHTML = f.map(i => {
+    const fh = i.flags.map(x =>
+      x === 'duplikat' ? '<span class="fc fc-d">duplikat</span>' :
+      x === 'harga-nol' ? '<span class="fc fc-h">harga=0</span>' :
+      x === 'stok-nol' ? '<span class="fc fc-s">stok=0</span>' : ''
+    ).join('');
+
+    const sc = i.status === 'aktif' ? 's-aktif' :
+               i.status === 'nonaktif' ? 's-nonaktif' :
+               i.status === 'lewati' ? 's-lewati' : 's-belum';
+
+    return `<tr>
+      <td style="font-size:11px;color:var(--muted)">${i.id}</td>
+      <td style="font-size:11px;color:var(--muted)">${i.barcode || '–'}</td>
+      <td style="font-size:11px;color:var(--muted)">${i.sku || '–'}</td>
+      <td style="max-width:200px;word-break:break-word;font-weight:500">${i.nama || '–'}</td>
+      <td>${i.merek || '–'}</td>
+      <td style="font-size:11px">${i.sub_jenis || i.jenis || '–'}</td>
+      <td>${i.stok}</td>
+      <td>${i.satuan || '–'}</td>
+      <td>${i.rak || '–'}</td>
+      <td>Rp ${i.harga_pokok.toLocaleString('id-ID')}</td>
+      <td>Rp ${i.harga_jual.toLocaleString('id-ID')}</td>
+      <td style="font-size:11px;color:var(--muted)">${i.keterangan || '–'}</td>
+      <td style="font-size:11px;color:var(--muted);white-space:nowrap">${i.sheet}</td>
+      <td>${fh}</td>
+      <td><select class="ssel ${sc}" data-id="${i.id}" onchange="overrideStatus(this)">
+        <option value="aktif" ${i.status === 'aktif' ? 'selected' : ''}>✓ Aktif</option>
+        <option value="nonaktif" ${i.status === 'nonaktif' ? 'selected' : ''}>✗ Tidak aktif</option>
+        <option value="lewati" ${i.status === 'lewati' ? 'selected' : ''}>→ Lewati</option>
+        <option value="belum" ${i.status === 'belum' ? 'selected' : ''}>? Belum</option>
+      </select></td>
+    </tr>`;
+  }).join('');
+}
+
+async function overrideStatus(sel) {
+  const id = sel.dataset.id;
+  const status = sel.value;
+  await updateStatus(id, status);
+  updateSummary();
+  showToast('Status diubah');
+}
+
+async function exportXLSX(mode) {
+  const btnAktif = document.getElementById('exp-btn-aktif');
+  const btnNon = document.getElementById('exp-btn-non');
+  const btnAll = document.getElementById('exp-btn-all');
+
+  btnAktif.disabled = true;
+  btnNon.disabled = true;
+  btnAll.disabled = true;
+
+  const pw = document.getElementById('prog-wrap');
+  const pl = document.getElementById('prog-label');
+  const pf = document.getElementById('prog-fill');
+  pw.style.display = '';
+  pl.textContent = 'Mengekspor data...';
+  pf.style.width = '50%';
+
+  try {
+    await exportToXLSX(mode);
+    pf.style.width = '100%';
+    pl.textContent = 'Selesai!';
+    showToast('Export berhasil!');
+  } catch (err) {
+    showToast('Error: ' + err.message);
+  } finally {
+    setTimeout(() => { pw.style.display = 'none'; }, 2000);
+    btnAktif.disabled = false;
+    btnNon.disabled = false;
+    btnAll.disabled = false;
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Initialize
+init();
+</script>
+</body>
+</html>

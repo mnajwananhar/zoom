@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel | Petshop Zoom</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F6F3;--border:#E5E3DD;--text:#1A1915;--muted:#888580;
+  --green:#2D7A4F;--green-bg:#EBF5EF;
+  --red:#B83232;--red-bg:#FAEAEA;
+  --blue:#1A5FA8;--blue-bg:#EBF2FB;--accent:#1A5FA8;
+  --purple:#534AB7;--purple-bg:#EEEDFE;
+  --nav-h:48px;
+}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text)}
+.nav-bar{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
+  background:#fff;border-bottom:2px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;gap:4px;
+  z-index:9999;overflow-x:auto;scrollbar-width:none;
+}
+.nav-bar::-webkit-scrollbar{display:none}
+.logo{font-size:15px;font-weight:700;margin-right:10px;white-space:nowrap;flex-shrink:0}
+.logo span{color:var(--accent)}
+.nav-sep{width:1px;height:22px;background:var(--border);margin:0 6px;flex-shrink:0}
+.nav-btn{
+  display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;
+  font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;
+  color:var(--muted);background:transparent;
+  transition:background .15s,color .15s;white-space:nowrap;flex-shrink:0;
+}
+.nav-btn:hover{background:var(--bg);color:var(--text)}
+.nav-btn.active{color:var(--accent);background:var(--blue-bg)}
+.nav-icon{font-size:15px}
+.nav-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--green-bg);color:var(--green)}
+.nav-badge-v{font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--purple-bg);color:var(--purple)}
+.iframe-wrap{position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;display:none}
+.iframe-wrap.active{display:block}
+.iframe-wrap iframe{width:100%;height:100%;border:none;display:block}
+
+</style>
+</head>
+<body>
+
+<div class="nav-bar">
+  <div class="logo">Petshop <span>Zoom</span></div>
+  <div class="nav-sep"></div>
+
+  <button class="nav-btn active" onclick="switchTab('A',this)">
+    <span class="nav-icon">🍖</span>
+    <span>Admin A</span>
+    <span class="nav-badge" id="badge-A">A</span>
+  </button>
+
+  <button class="nav-btn" onclick="switchTab('B',this)">
+    <span class="nav-icon">🎾</span>
+    <span>Admin B</span>
+    <span class="nav-badge" id="badge-B">B</span>
+  </button>
+
+  <button class="nav-btn" onclick="switchTab('C',this)">
+    <span class="nav-icon">🧴</span>
+    <span>Admin C</span>
+    <span class="nav-badge" id="badge-C">C</span>
+  </button>
+
+  <div class="nav-sep"></div>
+
+  <button class="nav-btn" onclick="switchTab('V',this)">
+    <span class="nav-icon">✓</span>
+    <span>Validator</span>
+    <span class="nav-badge-v">V</span>
+  </button>
+</div>
+
+<div class="iframe-wrap active" id="wrap-A">
+  <iframe id="frame-A" src="AdminA.html"></iframe>
+</div>
+
+<div class="iframe-wrap" id="wrap-B">
+  <iframe id="frame-B" src="AdminB.html"></iframe>
+</div>
+
+<div class="iframe-wrap" id="wrap-C">
+  <iframe id="frame-C" src="AdminC.html"></iframe>
+</div>
+
+<div class="iframe-wrap" id="wrap-V">
+  <iframe id="frame-V" src="validator.html"></iframe>
+</div>
+
+
+
+<script>
+// API_BASE - auto-detect based on current host (works locally & on production)
+const API_BASE = window.location.origin + '/api';
+
+function switchTab(tab, btn) {
+  // Update nav buttons
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Update iframe visibility
+  document.querySelectorAll('.iframe-wrap').forEach(w => w.classList.remove('active'));
+  document.getElementById('wrap-' + tab).classList.add('active');
+}
+
+
+</script>
+
+</body>
+</html>

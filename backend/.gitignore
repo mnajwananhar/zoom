@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Database (local development only)
+data/
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db
